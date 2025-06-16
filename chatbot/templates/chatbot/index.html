@@ -1,0 +1,35 @@
+{% extends "chatbot/base.html" %}
+
+{% block content %}
+    <div class="chat-container">
+        <h3>Welcome to PATIL BATTERIES Chat Assistant</h3>
+        <p>Ask me about our products, services, or power solutions.</p>
+        <a href="{% url 'chat' %}" style="display: inline-block; padding: 10px 20px; background-color: #003366; color: white; text-decoration: none; border-radius: 5px; margin-bottom: 20px;">Start Chat</a>
+        
+        <div style="margin-top: 30px;">
+            <h4>Our Products</h4>
+            <div class="product-list">
+                <div class="product-card">
+                    <h5>13.5 KM Inventors</h5>
+                    <p>Ideal for your load requirements</p>
+                </div>
+                <div class="product-card">
+                    <h5>15 KM option</h5>
+                    <p>For future expansion</p>
+                </div>
+                <div class="product-card">
+                    <h5>Motoroid SFR: 3500</h5>
+                    <p>3.5 kW running power</p>
+                </div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px;">
+            <h4>Contact Us</h4>
+            <p><strong>Address:</strong> NEW VARDHAMAN TOWNSHIP, Shop no.19, Sasane Nagar, Hadapsar, Pune, Maharashtra 411028</p>
+            <p><strong>Phone:</strong> +91 9767842995</p>
+            <p><strong>Email Us:</strong> anuragspatil1995@gmail.com</p>
+            <p><strong>Opening Hours:</strong> All Days: 9AM - 9PM</p>
+        </div>
+    </div>
+{% endblock %}

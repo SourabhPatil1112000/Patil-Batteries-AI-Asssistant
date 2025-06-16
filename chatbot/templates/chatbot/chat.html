@@ -1,0 +1,116 @@
+{% extends "chatbot/base.html" %}
+
+{% block content %}
+    <div class="chat-container">
+        <div id="chat-messages">
+            <div class="message bot-message">
+                Hello! I'm your PATIL BATTERIES assistant. I can help you with:
+                <ul>
+                    <li>Product information</li>
+                    <li>Power solutions</li>
+                    <li>Technical specifications</li>
+                    <li>Pricing and availability</li>
+                </ul>
+                How can I help you today?
+            </div>
+        </div>
+        
+        <form id="chat-form" method="post" action="{% url 'chat' %}">
+            {% csrf_token %}
+            <input type="text" id="message-input" name="message" placeholder="Type your message here..." required>
+            <button type="submit" id="send-button">Send</button>
+        </form>
+    </div>
+
+    <script>
+        const chatForm = document.getElementById('chat-form');
+        const messageInput = document.getElementById('message-input');
+        const chatMessages = document.getElementById('chat-messages');
+        
+        // Function to add a message to the chat
+        function addMessage(role, content, isTyping = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}-message`;
+            
+            if (isTyping) {
+                // Add typing indicator
+                messageDiv.innerHTML = `
+                    <div class="typing-indicator">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <div class="typing-text">${content}</div>
+                `;
+            } else {
+                messageDiv.innerHTML = content.replace(/\n/g, '<br>');
+            }
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return messageDiv;
+        }
+        
+        chatForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const message = messageInput.value.trim();
+            if (message) {
+                // Add user message to chat
+                addMessage('user', message);
+                
+                // Clear input
+                messageInput.value = '';
+                
+                // Add "Generating..." message
+                const generatingMessage = addMessage('bot', 'Generating response...', true);
+                
+                // Disable the form while processing
+                messageInput.disabled = true;
+                document.getElementById('send-button').disabled = true;
+                
+                // Send message to server
+                fetch(chatForm.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        'message': message
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Remove the "Generating..." message
+                    chatMessages.removeChild(generatingMessage);
+                    
+                    // Add the actual bot response
+                    addMessage('bot', data.response);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Remove the "Generating..." message
+                    chatMessages.removeChild(generatingMessage);
+                    
+                    // Show error message
+                    addMessage('bot', 'Sorry, I encountered an error. Please try again.');
+                })
+                .finally(() => {
+                    // Re-enable the form
+                    messageInput.disabled = false;
+                    document.getElementById('send-button').disabled = false;
+                    messageInput.focus();
+                });
+            }
+        });
+        
+        // Focus input field on page load
+        messageInput.focus();
+    </script>
+{% endblock %}
